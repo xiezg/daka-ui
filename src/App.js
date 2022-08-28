@@ -3,6 +3,25 @@ import './gannt.css';
 import React from 'react';
 import { BottomScrollListener } from 'react-bottom-scroll-listener';
 import mermaid from './mermaid'
+var moment = require('moment')
+
+const ErrorMsg = 'gantt\ntitle 出错啦!!!❌';
+const render_container = document.getElementById('mermaid_tmp_render')
+
+mermaid.initialize({
+  startOnLoad: false,
+  logLevel: 5,
+  securityLevel: 'loose',
+  gantt: {
+    fontSize: 14,
+    sectionFontSize: 12,
+    // barHeight: 23,
+    // titleTopMargin: 25,
+    // topPadding: 40,
+    // fontFamily: 'STHupo',
+    axisFormat: '%m/%d',
+  }
+});
 
 function DateDiffNow(sDate1, beginDate) { //sDate1和sDate2是2006-12-18格式
 
@@ -16,35 +35,6 @@ function DateDiffNow(sDate1, beginDate) { //sDate1和sDate2是2006-12-18格式
   //            return iDays
   return parseInt(iDays / 30) + "M " + iDays % 30 + "d"
 }
-
-// console.log( DateDiffNow("2020-11-16", "2020-11-16"));
-
-mermaid.initialize({
-  startOnLoad: false,
-  logLevel: 5,
-  securityLevel: 'loose',
-  gantt: {
-    task_cb: function (taskArray) {
-      // if ( typeof GetTaskDetail !== 'undefined' ){
-      //     GetTaskDetail( taskArray)
-      // }
-    },
-    fontSize: 14,
-    sectionFontSize: 12,
-    // barHeight: 23,
-    // titleTopMargin: 25,
-    // topPadding: 40,
-    // fontFamily: 'STHupo',
-    axisFormat: '%m/%d',
-  }
-});
-
-const ErrorMsg = 'gantt\ntitle 出错啦!!!❌';
-
-const graphDefinition = 'graph TB\na-->b';
-const graphDefinition2 = 'flowchart LR\na --> b & c--> d';
-
-let render_container = document.getElementById('mermaid_tmp_render')
 
 // mermaid.render
 // * @param {any} id The id of the element to be rendered
@@ -63,6 +53,7 @@ class TaskItem extends React.Component {
     this.state = {
       svgMsg: props.graphDefinition,
       ShowEditor: false,
+      // task_id: props.task_id,
     }
   }
 
@@ -84,6 +75,27 @@ class TaskItem extends React.Component {
       this.setState({
         ShowEditor: false,
       })
+
+      var req = {};
+      req.task_id = this.props.task_id;
+      req.task_msg = this.state.svgMsg;
+
+      fetch('/daka/api/daily/task/set', {
+        method: "POST",
+        body: JSON.stringify(req)
+      })
+
+      if( this.task_detail ){
+        let req = {};
+        req.task_id = this.props.task_id;
+        req.task_msg = this.task_detail;
+        fetch('/daka/api/daily/task/detail/set', {
+          method: 'POST',
+          body: JSON.stringify(req)
+        })
+
+        this.task_detail = null
+      }
     };
 
     const RightDoubleClick = () => {
@@ -91,6 +103,29 @@ class TaskItem extends React.Component {
         ShowEditor: true,
       })
     };
+
+    const grant_cb = (svgCode, bindFunctions, taskArray) => {
+
+      try {
+
+        taskArray = taskArray.filter(ele => {
+          return ele.id !== "whole" && ele.id !== "am" && ele.id !== "rest" && ele.id !== "pm"
+        })
+
+        let array = []
+        taskArray.forEach(ele => {
+          array.push({
+            "start_time": moment(ele.startTime).format('HH:mm:ss'),
+            "end_time": moment(ele.endTime).format('HH:mm:ss'),
+            "task": ele.task,
+            "done": ele.done | 0,
+          })
+        })
+        this.task_detail = array;
+      } catch (e) {
+        console.error(e)
+      }
+    }
 
     const { task_date } = this.props;
     var date = new Date(task_date)
@@ -102,7 +137,7 @@ class TaskItem extends React.Component {
     // third: cb 结果回调函数，可以不写
     // forth： render的临时中间div，可以不写，但是容易出错，最好写一个
     try {
-      svg = mermaid.render("id" + Date.now(), this.state.svgMsg, undefined, render_container)
+      svg = mermaid.render("id" + Date.now(), this.state.svgMsg, grant_cb, render_container)
     }
     catch (e) {
       console.log(e)
@@ -137,18 +172,17 @@ class TaskList extends React.Component {
   handleOnDocumentBottom = () => {
 
     var req = {};
-    req.start_id = this.startId-1;
+    req.start_id = this.startId - 1;
 
-    
     fetch('/daka/api/daily/task/list', {
       method: 'POST',
       body: JSON.stringify(req)
     }).then((response) => {
       return response.json()
     }).then((data) => {
-      this.startId = data.Data[ data.Data.length - 1 ].id
+      this.startId = data.Data[data.Data.length - 1].id
       this.setState({
-        dataList: [...this.state.dataList, ...data.Data ]
+        dataList: [...this.state.dataList, ...data.Data]
       })
     }).catch(function (error) {
       console.log(error)
@@ -166,7 +200,8 @@ class TaskList extends React.Component {
               key={item.id}
               graphDefinition={item.task_msg}
               task_date={item.task_date}
-              ip_addr = {item.ip_addr}
+              ip_addr={item.ip_addr}
+              task_id={item.id}
             />)
           }
         </React.Fragment>
@@ -185,7 +220,7 @@ class TaskList extends React.Component {
     }).then((response) => {
       return response.json()
     }).then((data) => {
-      this.startId = data.Data[ data.Data.length - 1 ].id
+      this.startId = data.Data[data.Data.length - 1].id
       this.setState({
         dataList: data.Data
       })
