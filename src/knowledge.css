@@ -1,0 +1,99 @@
+/* 导航栏，位于左侧，宽度固定 */
+.nav {
+    width: 20%;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-color: rgba(120, 120, 120, 0.1)
+}
+
+/* POST展示区,自动 */
+.post {
+    flex-grow: 1;   /* 自动填满剩余的宽度 */
+    padding: 15px;
+}
+
+/*textarea 填满父容器*/
+.post>.postEditor textarea {
+    width: 100%;
+    height: 100%;
+    border: 1px dotted;
+	resize: none; /* 使用 resize: none; 来禁用 textarea 右下角的拖动图标 */
+}
+
+.post > .postEditor {
+    padding: 10px 10px;
+}
+
+.Nav_group {
+    margin: 10px;
+}
+
+.Nav_title {
+    /* background-color: aqua; */
+    background-color: hwb(69 85% 6%);
+}
+
+.Nav_title button {
+    float: right;
+    border: none;
+}
+
+.Nav_group_shrink {
+    display: none;
+}
+
+.Nav_group_shrink {
+    display: none;
+}
+
+.Nav_item {
+    background-color: hwb(69 85% 6%);
+    margin-left: 1.5em;
+    margin-top: 3px;
+    /* border: 0.5px solid; */
+    /* visibility: hidden; */
+}
+
+#content h2 {
+	position: relative;
+	margin: 10px 0;
+	color: #FFFFFF;
+	background: #6FA8DC;
+	padding: 6px 10px;
+	font-size: 16px;
+	font-weight: bold;
+	border-radius: 5px;
+}
+
+#content h3 {
+	position: relative;
+	margin: 10px 0 8px 0;
+	color: #0d5a96;
+	background: #f1f7fd;
+	border: 1px dashed #cae0f3;
+	border-left: 3px solid #49a7ea;
+	padding: 6px 10px;
+	font-size: 16px;
+	font-weight: bold;
+}
+
+#content blockquote {
+	margin: 1.5em 0;
+	padding: 1rem 1.5rem;
+	/* position: relative; */
+	background-color: #f6f6f6;
+	border-left: 0.35rem solid #f75357;
+	border-radius: 0.35rem;
+	transition: all 0.5s ease-out;
+}
+
+#content textarea{
+		background: #ffffdd;
+		width: 100%;
+		/* height: 100%; */
+		border: none;
+		outline: none;
+		padding: 0.625rem 0.625rem 0 0.625rem;
+		/* min-height: 13rem; */
+		resize: none;
+}

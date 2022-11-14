@@ -1,0 +1,34 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+
+/* 左右布局，向左，向右对齐布局 */
+.container1{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;         /*主轴方向item的排列方式*/
+    align-items: stretch;                   /*纵轴方案的填充*/
+    align-content: normal;                  /*多行items，纵轴方向的填充方案*/
+}
+
+/*左右布局*/
+.container2{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;         /*主轴方向item的排列方式*/
+    align-items: stretch;                   /*纵轴方案的填充*/
+    align-content: normal;                  /*多行items，纵轴方向的填充方案*/
+}
+
+/* 所有的item均分container2的宽度 */
+.container2 > .item{
+    /* flex-basis: 0; */
+    width: 0px;
+    flex-grow: 1;
+    /* overflow: hidden; */
+}
+
+
