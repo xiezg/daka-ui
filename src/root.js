@@ -44,8 +44,8 @@ class ModuleList extends React.Component {
                     <input type="text" />
                 </div>
                 <div className='moduleList'>
-                    <Module title='工作列表' open_page={ this.set_work_list.bind(this) } />
-                    <Module title='知识库' open_page={ this.set_knowledge.bind(this) } />
+                    <Module title='WorkList' open_page={ this.set_work_list.bind(this) } />
+                    <Module title='Note' open_page={ this.set_knowledge.bind(this) } />
                 </div>
             </div>
         )

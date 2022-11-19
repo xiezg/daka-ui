@@ -2,9 +2,109 @@ import React from "react";
 import "./layout.css"
 import "./knowledge.css"
 import server from './server';
-// import { VscTrash } from "react-icons/vsc";
+import parse, { domToReact } from 'html-react-parser';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+var hljs = require('react-syntax-highlighter/dist/esm/styles/hljs')
 
-const parse = require('html-react-parser');
+const styleArray = [
+    hljs.a11yDark,
+    hljs.a11yLight,
+    hljs.agate,
+    hljs.anOldHope,
+    hljs.androidstudio,
+    hljs.arduinoLight,
+    hljs.arta,
+    hljs.ascetic,
+    hljs.atelierCaveDark,
+    hljs.atelierCaveLight,
+    hljs.atelierDuneDark,
+    hljs.atelierDuneLight,
+    hljs.atelierEstuaryDark,
+    hljs.atelierEstuaryLight,
+    hljs.atelierForestDark,
+    hljs.atelierForestLight,
+    hljs.atelierHeathDark,
+    hljs.atelierHeathLight,
+    hljs.atelierLakesideDark,
+    hljs.atelierLakesideLight,
+    hljs.atelierPlateauDark,
+    hljs.atelierPlateauLight,
+    hljs.atelierSavannaDark,
+    hljs.atelierSavannaLight,
+    hljs.atelierSeasideDark,
+    hljs.atelierSeasideLight,
+    hljs.atelierSulphurpoolDark,
+    hljs.atelierSulphurpoolLight,
+    hljs.atomOneDarkReasonable,
+    hljs.atomOneDark,
+    hljs.atomOneLight,
+    hljs.brownPaper,
+    hljs.codepenEmbed,
+    hljs.colorBrewer,
+    hljs.darcula,
+    hljs.dark,
+    hljs.defaultStyle,
+    hljs.docco,
+    hljs.dracula,
+    hljs.far,
+    hljs.foundation,
+    hljs.githubGist,
+    hljs.github,
+    hljs.gml,
+    hljs.googlecode,
+    hljs.gradientDark,
+    hljs.gradientLight,
+    hljs.grayscale,
+    hljs.gruvboxDark,
+    hljs.gruvboxLight,
+    hljs.hopscotch,
+    hljs.hybrid,
+    hljs.idea,
+    hljs.irBlack,
+    hljs.isblEditorDark,
+    hljs.isblEditorLight,
+    hljs.kimbieDark,
+    hljs.kimbieLight,
+    hljs.lightfair,
+    hljs.lioshi,
+    hljs.magula,
+    hljs.monoBlue,
+    hljs.monokaiSublime,
+    hljs.monokai,
+    hljs.nightOwl,
+    hljs.nnfxDark,
+    hljs.nnfx,
+    hljs.nord,
+    hljs.obsidian,
+    hljs.ocean,
+    hljs.paraisoDark,
+    hljs.paraisoLight,
+    hljs.pojoaque,
+    hljs.purebasic,
+    hljs.qtcreatorDark,
+    hljs.qtcreatorLight,
+    hljs.railscasts,
+    hljs.rainbow,
+    hljs.routeros,
+    hljs.schoolBook,
+    hljs.shadesOfPurple,
+    hljs.solarizedDark,
+    hljs.solarizedLight,
+    hljs.srcery,
+    hljs.stackoverflowDark,
+    hljs.stackoverflowLight,
+    hljs.sunburst,
+    hljs.tomorrowNightBlue,
+    hljs.tomorrowNightBright,
+    hljs.tomorrowNightEighties,
+    hljs.tomorrowNight,
+    hljs.tomorrow,
+    hljs.vs,
+    hljs.vs2015,
+    hljs.xcode,
+    hljs.xt256,
+    hljs.zenburn
+]
 
 class NavItem extends React.Component {
     constructor(props) {
@@ -33,8 +133,8 @@ class NavItem extends React.Component {
             server.UpdateKnowledgePost(post_id, null, new_title)
         }
 
-        const delete_post = ()=> {
-            if( window.confirm( "确认删除?" ) === true ){
+        const delete_post = () => {
+            if (window.confirm("确认删除?") === true) {
                 this.delete_post(post_id);
             }
         }
@@ -54,6 +154,7 @@ class NavItemGroup extends React.Component {
         super(props);
         this.state = {
             shrink: true,
+            // shrink: false,
             item_array: this.props.item_array,
             new_post: false
         }
@@ -76,13 +177,13 @@ class NavItemGroup extends React.Component {
         })
     }
 
-    show_new_post( title ) {
+    show_new_post(title) {
 
         const commitMsg = (event) => {
 
             this.setState({ new_post: false })
 
-            this.new_post( title, event.target.value)
+            this.new_post(title, event.target.value)
         }
 
         return (
@@ -112,7 +213,7 @@ class NavItemGroup extends React.Component {
                     <button onClick={(e) => { e.stopPropagation(); this.setState({ new_post: true }) }} >+</button>
                 </div>
                 <div className={this.state.shrink ? 'Nav_group_shrink' : 'Nav_group_expand'} >
-                    {this.show_new_post( title )}
+                    {this.show_new_post(title)}
                     {
                         item_array.map((item, key) => {
                             return <NavItem key={key} post_id={item.post_id} title={item.title} change_page={change_page} delete_post={this.delete_post.bind(this)} />
@@ -175,13 +276,28 @@ class Nav extends React.Component {
     }
 }
 
+class CodeBlack extends React.Component {
+
+    render() {
+
+        const language = this.props.language ? this.props.language : "bash";
+
+        return (
+            <SyntaxHighlighter language={language} style={this.props.style} showLineNumbers={true}>
+                {this.props.children.trim()}
+            </SyntaxHighlighter>
+        );
+    }
+}
+
 class PostPage extends React.Component {
 
     constructor(props) {
         super(props);
 
         this.state = {
-            edit_mode: false,
+            // edit_mode: true,
+            edit_mode: props.post_info.innerHtml === null || props.post_info.innerHtml === "",
             innerHtml: props.post_info.innerHtml,
         }
     }
@@ -191,6 +307,8 @@ class PostPage extends React.Component {
     }
 
     render() {
+
+        const style = styleArray[Math.floor((Math.random() * styleArray.length))];
 
         const { edit_mode, innerHtml } = this.state;
 
@@ -213,10 +331,49 @@ class PostPage extends React.Component {
             })
         }
 
+        // Element {
+        //     type: 'tag',
+        //     parent: null,
+        //     prev: null,
+        //     next: null,
+        //     startIndex: null,
+        //     endIndex: null,
+        //     children: [],
+        //     name: 'br',
+        //     attribs: {}
+        //   }
+
+        const options = {
+            replace: ({ name, attribs, children }) => {
+
+                if (name === "code") {
+
+                    // console.log( "replace1:", typeof children )  => replace1: object
+                    // console.log( "replace2:", typeof domToReact(children, options) ) => replace2: string
+
+                    return <CodeBlack style={style} language={attribs.language} children={domToReact(children, options)} />
+                }
+
+                // if (attribs.id === 'main') {
+                //     return <h1 style={{ fontSize: 42 }}>{domToReact(children, options)}</h1>;
+                // }
+
+                // if (attribs.class === 'prettify') {
+                //     return (
+                //         <span style={{ color: 'hotpink' }}>
+                //             {domToReact(children, options)}
+                //         </span>
+                //     );
+                // }
+            }
+        };
+
+        // console.log(  "parse:", parse(innerHtml ? innerHtml : "", options ) )
+
         return (
             <div className="post container2" >
                 {edit_mode ? (<div className="postEditor item" >   <textarea onKeyUp={keyUpWithEditor} onInput={OnInput} value={innerHtml}></textarea> </div>) : null}
-                <div className="item"><div onDoubleClick={() => { this.setState({ edit_mode: true }) }} className="postView" ><div id="content"> {parse(innerHtml ? innerHtml : "")} </div></div></div>
+                <div className="item"><div onDoubleClick={() => { this.setState({ edit_mode: true }) }} className="postView" ><div id="content"> {parse(innerHtml ? innerHtml : "", options)} </div></div></div>
             </div>
         )
     }
@@ -259,7 +416,7 @@ class Knowledge extends React.Component {
         return (
             <div>
                 <button onClick={() => this.props.backup()} >返回首页</button>
-                <div className="container1" >
+                <div className="container1 knowledge_body" >
                     <Nav change_page={this.change_page.bind(this)} />
                     {post_info.post_id > 0 ? <PostPage key={post_info.post_id} post_info={post_info} /> : null}
                 </div>

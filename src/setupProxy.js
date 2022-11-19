@@ -8,8 +8,9 @@ module.exports = function (app) {
         '/daka',
         createProxyMiddleware({
             // target: 'http://localhost:8081',
-            target: 'http://123.57.91.195',
+            target: 'https://123.57.91.195',
             changeOrigin: true,
+            secure: false,
         })
     );
 };

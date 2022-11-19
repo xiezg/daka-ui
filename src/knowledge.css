@@ -1,57 +1,65 @@
+.knowledge_body{
+	background-color: rgba(0xf1, 0xf7, 0xfd, 0.1);
+	margin-bottom: 30px;
+	border-bottom: 1px dotted #6FA8DC;
+}
+
 /* 导航栏，位于左侧，宽度固定 */
 .nav {
-    width: 20%;
-    flex-grow: 0;
-    flex-shrink: 0;
-    background-color: rgba(120, 120, 120, 0.1)
+	width: 20%;
+	flex-grow: 0;
+	flex-shrink: 0;
+	background-color: rgba(120, 120, 120, 0.1)
 }
 
 /* POST展示区,自动 */
 .post {
-    flex-grow: 1;   /* 自动填满剩余的宽度 */
-    padding: 15px;
+	flex-grow: 1;
+	/* 自动填满剩余的宽度 */
+	padding: 15px;
 }
 
 /*textarea 填满父容器*/
 .post>.postEditor textarea {
-    width: 100%;
-    height: 100%;
-    border: 1px dotted;
-	resize: none; /* 使用 resize: none; 来禁用 textarea 右下角的拖动图标 */
+	width: 100%;
+	height: 100%;
+	border: 1px dotted;
+	resize: none;
+	/* 使用 resize: none; 来禁用 textarea 右下角的拖动图标 */
 }
 
-.post > .postEditor {
-    padding: 10px 10px;
+.post>.postEditor {
+	padding: 10px 10px;
 }
 
 .Nav_group {
-    margin: 10px;
+	margin: 10px;
 }
 
 .Nav_title {
-    /* background-color: aqua; */
-    background-color: hwb(69 85% 6%);
+	/* background-color: aqua; */
+	background-color: hwb(69 85% 6%);
 }
 
 .Nav_title button {
-    float: right;
-    border: none;
+	float: right;
+	border: none;
 }
 
 .Nav_group_shrink {
-    display: none;
+	display: none;
 }
 
 .Nav_group_shrink {
-    display: none;
+	display: none;
 }
 
 .Nav_item {
-    background-color: hwb(69 85% 6%);
-    margin-left: 1.5em;
-    margin-top: 3px;
-    /* border: 0.5px solid; */
-    /* visibility: hidden; */
+	background-color: hwb(69 85% 6%);
+	margin-left: 1.5em;
+	margin-top: 3px;
+	/* border: 0.5px solid; */
+	/* visibility: hidden; */
 }
 
 #content h2 {
@@ -87,13 +95,39 @@
 	transition: all 0.5s ease-out;
 }
 
-#content textarea{
-		background: #ffffdd;
-		width: 100%;
-		/* height: 100%; */
-		border: none;
-		outline: none;
-		padding: 0.625rem 0.625rem 0 0.625rem;
-		/* min-height: 13rem; */
-		resize: none;
+#content textarea {
+	background: #ffffdd;
+	width: 100%;
+	/* height: 100%; */
+	border: none;
+	outline: none;
+	padding: 0.625rem 0.625rem 0 0.625rem;
+	/* min-height: 13rem; */
+	resize: none;
+}
+
+.code {
+	display: flex;
+	flex-direction: column;
+}
+
+.codeItem {
+	display: flex;
+}
+
+.codeItem>.num {
+	text-align: right !important;
+	padding: 0 1.5em 0 1em !important;
+	width: 5px;
+	background-color: #fcfcfc !important;
+	white-space: pre !important;
+	color: #9fb8cc;
+	/* background-color: #49a7ea; */
+	border-right: 3px solid #6ce26c !important;
+}
+
+.codeItem>.line {
+	padding: 0 1em !important;
+	flex-grow: 1;
+	/* background-color: bisque; */
 }
