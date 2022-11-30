@@ -1,0 +1,87 @@
+
+.logo{
+    background-image: url(../public/dog.png);
+    background-size: 100% 100%;
+    width: 90px;
+    height: 60px;
+    position: absolute;
+    top: calc( 100vh - 60px - 20px);
+    left: calc( 100vw - 90px - 20px);
+}
+
+.login{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 200px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #bdbdbd;
+    /* height: 30vh; */
+    width: 300px;
+    /* height: 200px; */
+    justify-content: center;         /*主轴方向item的排列方式*/
+}
+
+
+.login > .msg-error {
+    margin: 10px;
+    font-size: 12px;
+	background: #ffebeb;
+	color: #e4393c;
+	border: 1px solid #faccc6;
+	padding: 3px 10px 3px 40px;
+	line-height: 15px;
+	height: auto;
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.login > .msg-error > b {
+	display: block;
+	margin-right: 8px;
+	width: 16px;
+	height: 16px;
+	overflow: hidden;
+	background: url(../public/pwd-icons-new.png) -104px -49px no-repeat;
+}
+
+.login > button{
+    margin: 10px;
+}
+.my_input{
+    display: flex;
+    margin: 10px;
+	height: 38px;
+	border: 1px solid #bdbdbd;
+}
+
+.my_input > label{
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 38px;
+	height: 38px;
+	border-right: 1px solid #bdbdbd;
+    background: url(../public/pwd-icons-new.png) no-repeat;
+}
+
+.my_input > input {
+    padding-left: 1em;
+    padding-right: 1em;
+    height: 100%;
+    width: 100%;
+    border: none;
+    outline: none;
+}
+
+.my_input > span{
+    margin-top: 12px;
+    margin-right: 12px;
+    width: 14px;
+	height: 14px;
+    flex-grow: 0;
+    flex-shrink: 0;
+	background: url(../public/pwd-icons-new.png) -25px -143px no-repeat;
+	cursor: pointer;
+}
+

@@ -1,7 +1,14 @@
 
+let call_back = null
+
+export const RequireLogin = ( cb )=>{
+    call_back = cb
+}
+
 class Server {
 
     post(url, req_obj, success, fails) {
+
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -9,27 +16,41 @@ class Server {
         };
 
         fetch(url, requestOptions)
-            .then(response => response.json())
-            .then((data) => {
+            .then(response => { 
+                if( response.status === 401 ){
+                    call_back( false )
+                    throw new Error( "login fails" )
+                }
+
+                if( !response.ok ){
+                    throw new Error( "[" + url + "] 请求失败 status:" + response.status )
+                }
+                return response.json(); 
+            }).then((data) => {
                 if (success) {
                     success(data)
                 }
-            });
+            }).catch( err =>{
+                console.log( err )
+            } )
     }
 
-    Login() {
+    Login( userName, password ) {
         fetch('/daka/api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: 'name=123&password=123',
+            body: "name=" +userName +"&password=" + password ,
         }).then((response) => {
-            // return response.json()
-        }).then((data) => {
-            // console.log(data)
-        }).catch(function (error) {
-            console.log(error)
+            if( !response.ok ){
+                throw new Error('Network response was not OK');
+            }
+            return response.json()
+        }).then( data=>{
+            call_back( data.Ret === 0 )
+        } ).catch( (err) =>{
+            console.log( err )
         })
     }
 

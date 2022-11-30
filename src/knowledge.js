@@ -193,18 +193,22 @@ class NavItemGroup extends React.Component {
         )
     }
 
+    //这里有BUG，删除某一项，然后最后一项被删除，经测试，还是貌似没有刷新
     delete_post(post_id) {
         let old_item_array = this.state.item_array
         let new_item_array = old_item_array.filter((item) => {
             return item.post_id !== post_id;
         })
 
+        console.log( { old_item_array, new_item_array } )
         this.setState({ item_array: new_item_array })
     }
 
     render() {
         const { title, change_page } = this.props;
         const { item_array } = this.state
+
+        // console.log( "render", item_array )
 
         return (
             <div className="Nav_group">
@@ -216,6 +220,7 @@ class NavItemGroup extends React.Component {
                     {this.show_new_post(title)}
                     {
                         item_array.map((item, key) => {
+                            // console.log( "render map", {item,key} )
                             return <NavItem key={key} post_id={item.post_id} title={item.title} change_page={change_page} delete_post={this.delete_post.bind(this)} />
                         })
                     }
@@ -282,9 +287,10 @@ class CodeBlack extends React.Component {
 
         const language = this.props.language ? this.props.language : "bash";
 
+        console.log( typeof this.props.children )
         return (
             <SyntaxHighlighter language={language} style={this.props.style} showLineNumbers={true}>
-                {this.props.children.trim()}
+                {  typeof this.props.children === "string" ? this.props.children.trim() :"" }
             </SyntaxHighlighter>
         );
     }
