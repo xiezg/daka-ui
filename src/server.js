@@ -58,6 +58,10 @@ class Server {
         this.post('/daka/api/knowledge/post/delete', { post_id: post_id }, success, fail)
     }
 
+    GetKnowledgePost( post_id, success, fail ){
+        this.post('/daka/api/knowledge/post/get', { post_id: post_id }, success, fail)
+    }
+
     ListKnowledgePost(success) {
         this.post('/daka/api/knowledge/list', null, success)
     }

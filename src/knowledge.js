@@ -399,22 +399,9 @@ class Knowledge extends React.Component {
 
     change_page(post_id) {
 
-        var req = {};
-        req.post_id = post_id;
-
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(req)
-        };
-
-        fetch('/daka/api/knowledge/post/get', requestOptions)
-            .then(response => response.json())
-            .then((data) => {
-                // console.log("get from server:", data.Data[0])
-                this.setState({ post_info: data.Data[0] })
-
-            });
+        server.GetKnowledgePost( post_id, (data)=>{
+            this.setState({ post_info: data.Data[0] })
+        } )
     }
 
     render() {
