@@ -2,9 +2,11 @@ import React from 'react';
 import "./root.css"
 import TaskList from './work_task_list';
 import Knowledge from './knowledge';
+import OnlineTools from './online_tools'
 
 const PAGE_ID_WORK_TASK = "task_list"
 const PAGE_ID_KNOWLEDGE = "knowledge"
+const PAGE_ID_ONLINE_TOOLS = "online_tools"
 const PAGE_ID_INIT = "init"
 
 class Module extends React.Component {
@@ -28,6 +30,10 @@ class ModuleList extends React.Component {
         }
     }
 
+    show_online_tools(){
+        return <OnlineTools backup={ this.set_init.bind(this) } />
+    }
+
     show_work_list() {
         return <TaskList backup={ this.set_init.bind(this) } />
     }
@@ -46,6 +52,7 @@ class ModuleList extends React.Component {
                 <div className='moduleList'>
                     <Module title='WorkList' open_page={ this.set_work_list.bind(this) } />
                     <Module title='Note' open_page={ this.set_knowledge.bind(this) } />
+                    <Module title='online_tools' open_page={ this.set_online_tools.bind(this) } />
                 </div>
             </div>
         )
@@ -54,6 +61,12 @@ class ModuleList extends React.Component {
     set_work_list() {
         this.setState({
             page: PAGE_ID_WORK_TASK
+        })
+    }
+
+    set_online_tools(){
+        this.setState({
+            page: PAGE_ID_ONLINE_TOOLS
         })
     }
 
@@ -74,6 +87,7 @@ class ModuleList extends React.Component {
             case PAGE_ID_INIT: return this.show_init();
             case PAGE_ID_WORK_TASK: return this.show_work_list();
             case PAGE_ID_KNOWLEDGE: return this.show_knowledge();
+            case PAGE_ID_ONLINE_TOOLS: return this.show_online_tools();
             default: return <div>error</div>
         }
     }

@@ -4,6 +4,11 @@ import "./knowledge.css"
 import server from './server';
 import parse, { domToReact } from 'html-react-parser';
 import SyntaxHighlighter from 'react-syntax-highlighter';
+import MermaidRender from "./mermaid";
+import { Normal, Pie, StackedAreaChart } from "./echarts"
+import YAML from 'yaml'
+
+const ErrorMsg = 'gantt\ntitle 出错啦!!!❌';
 var hljs = require('react-syntax-highlighter/dist/esm/styles/hljs')
 
 const styleArray = [
@@ -302,7 +307,6 @@ class PostPage extends React.Component {
         super(props);
 
         this.state = {
-            // edit_mode: true,
             edit_mode: props.post_info.innerHtml === null || props.post_info.innerHtml === "",
             innerHtml: props.post_info.innerHtml,
         }
@@ -328,7 +332,9 @@ class PostPage extends React.Component {
                 edit_mode: false,
             })
 
-            server.UpdateKnowledgePost(this.props.post_info.post_id, this.state.innerHtml, null)
+            if( this.props.post_info.innerHtml !== this.state.innerHtml ){
+                server.UpdateKnowledgePost(this.props.post_info.post_id, this.state.innerHtml, null)
+            }
         }
 
         const OnInput = (obj) => {
@@ -337,44 +343,36 @@ class PostPage extends React.Component {
             })
         }
 
-        // Element {
-        //     type: 'tag',
-        //     parent: null,
-        //     prev: null,
-        //     next: null,
-        //     startIndex: null,
-        //     endIndex: null,
-        //     children: [],
-        //     name: 'br',
-        //     attribs: {}
-        //   }
-
         const options = {
             replace: ({ name, attribs, children }) => {
 
                 if (name === "code") {
-
-                    // console.log( "replace1:", typeof children )  => replace1: object
-                    // console.log( "replace2:", typeof domToReact(children, options) ) => replace2: string
-
                     return <CodeBlack style={style} language={attribs.language} children={domToReact(children, options)} />
+                }else if( name === "mermaid" ){
+                    //<mermaid>包含的字符串是 array[0].data
+                    const svg =  MermaidRender( children[0].data, ErrorMsg )
+                    return (<div dangerouslySetInnerHTML={{ __html: svg }}></div>)
+                }else if( name === "echarts" ){
+                    let data = null
+
+                    try{
+                        data = YAML.parse( children[0].data )
+                    }catch(e){
+                        console.error(e)
+                        return;
+                    }
+
+                    switch( attribs.type ){
+                        case "pie":
+                            return <Pie title={ attribs.title } data={ data } />
+                        case "stacked_area_chart":
+                            return <StackedAreaChart title={ attribs.title }  data={ data } />
+                        default:
+                            return ;//<Pie title={ attribs.title } data={ YAML.parse( children[0].data ) } />
+                    }
                 }
-
-                // if (attribs.id === 'main') {
-                //     return <h1 style={{ fontSize: 42 }}>{domToReact(children, options)}</h1>;
-                // }
-
-                // if (attribs.class === 'prettify') {
-                //     return (
-                //         <span style={{ color: 'hotpink' }}>
-                //             {domToReact(children, options)}
-                //         </span>
-                //     );
-                // }
             }
         };
-
-        // console.log(  "parse:", parse(innerHtml ? innerHtml : "", options ) )
 
         return (
             <div className="post container2" >

@@ -131,3 +131,7 @@
 	flex-grow: 1;
 	/* background-color: bisque; */
 }
+
+td,th{
+	padding: 3px;
+}

@@ -1,28 +1,32 @@
 import './gannt.css';
 import React from 'react';
 import { BottomScrollListener } from 'react-bottom-scroll-listener';
+import server from './server';
+import MermaidRender from './mermaid';
+
 var moment = require('moment')
-// import mermaid from './mermaid.esm.min.mjs'
-var mermaid = require( '@xiezg/mermaid' )
+
+
+// var mermaid = require('@xiezg/mermaid')
 
 const ErrorMsg = 'gantt\ntitle 出错啦!!!❌';
-const render_container = document.getElementById('mermaid_tmp_render')
+// const render_container = document.getElementById('mermaid_tmp_render')
 
-mermaid.initialize({
-  startOnLoad: false,
-  logLevel: 5,
-  securityLevel: 'loose',
-  gantt: {
-    fontSize: 16,
-    sectionFontSize: 14,
-    useMaxWidth: true,
-    barHeight: 18,
-    // titleTopMargin: 25,
-    // topPadding: 40,
-    // fontFamily: 'STHupo',
-    axisFormat: '%m/%d',
-  }
-});
+// mermaid.initialize({
+//   startOnLoad: false,
+//   logLevel: 5,
+//   securityLevel: 'loose',
+//   gantt: {
+//     fontSize: 16,
+//     sectionFontSize: 14,
+//     useMaxWidth: true,
+//     barHeight: 18,
+//     // titleTopMargin: 25,
+//     // topPadding: 40,
+//     // fontFamily: 'STHupo',
+//     axisFormat: '%m/%d',
+//   }
+// });
 
 function DateDiffNow(sDate1, beginDate) { //sDate1和sDate2是2006-12-18格式
 
@@ -77,24 +81,10 @@ class TaskItem extends React.Component {
         ShowEditor: false,
       })
 
-      var req = {};
-      req.task_id = this.props.task_id;
-      req.task_msg = this.state.svgMsg;
+      server.TaskSet(this.props.task_id, this.state.svgMsg)
 
-      fetch('/daka/api/daily/task/set', {
-        method: "POST",
-        body: JSON.stringify(req)
-      })
-
-      if( this.task_detail ){
-        let req = {};
-        req.task_id = this.props.task_id;
-        req.task_msg = this.task_detail;
-        fetch('/daka/api/daily/task/detail/set', {
-          method: 'POST',
-          body: JSON.stringify(req)
-        })
-
+      if (this.task_detail) {
+        server.TaskDetailSet(this.props.task_id, this.task_detail)
         this.task_detail = null
       }
     };
@@ -130,20 +120,20 @@ class TaskItem extends React.Component {
 
     const { task_date } = this.props;
     var date = new Date(task_date)
-    let svg = ''
+    let svg = MermaidRender( this.state.svgMsg, ErrorMsg, grant_cb )
 
-    //render 参数
-    // first: id 随便一个不重复的就一个，svg的 id根据这个ID来设置
-    // second: txt: 文本内容
-    // third: cb 结果回调函数，可以不写
-    // forth： render的临时中间div，可以不写，但是容易出错，最好写一个
-    try {
-      svg = mermaid.render("id" + Date.now(), this.state.svgMsg, grant_cb, render_container)
-    }
-    catch (e) {
-      console.log(e)
-      svg = mermaid.render("id" + Date.now(), ErrorMsg, undefined, render_container)
-    }
+    // //render 参数
+    // // first: id 随便一个不重复的就一个，svg的 id根据这个ID来设置
+    // // second: txt: 文本内容
+    // // third: cb 结果回调函数，可以不写
+    // // forth： render的临时中间div，可以不写，但是容易出错，最好写一个
+    // try {
+    //   svg = mermaid.render("id" + Date.now(), this.state.svgMsg, grant_cb, render_container)
+    // }
+    // catch (e) {
+    //   console.log(e)
+    //   svg = mermaid.render("id" + Date.now(), ErrorMsg, undefined, render_container)
+    // }
 
     return (
       <div className="gantt_item gannt_container">
@@ -164,21 +154,7 @@ class TaskList extends React.Component {
 
   constructor(props) {
     super(props);
-
-    fetch('/daka/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: 'name=123&password=123',
-    }).then((response) => {
-      // return response.json()
-    }).then((data) => {
-      // console.log(data)
-    }).catch(function (error) {
-      console.log(error)
-    })
-
+    
     this.startId = -1;
     this.state = {
       dataList: []
@@ -187,21 +163,11 @@ class TaskList extends React.Component {
 
   handleOnDocumentBottom = () => {
 
-    var req = {};
-    req.start_id = this.startId - 1;
-
-    fetch('/daka/api/daily/task/list', {
-      method: 'POST',
-      body: JSON.stringify(req)
-    }).then((response) => {
-      return response.json()
-    }).then((data) => {
+    server.TaskList(this.startId - 1, (data) => {
       this.startId = data.Data[data.Data.length - 1].id
       this.setState({
         dataList: [...this.state.dataList, ...data.Data]
       })
-    }).catch(function (error) {
-      console.log(error)
     })
 
     console.log('I am at bottom! ', this.startId);
@@ -209,8 +175,8 @@ class TaskList extends React.Component {
 
   render() {
     return (
-      <div class="TaskList">
-        <button onClick={ () => this.props.backup() } >返回首页</button>
+      <div className='TaskList'>
+        <button onClick={() => this.props.backup()} >返回首页</button>
         <React.Fragment>
           {
             this.state.dataList.map(item => <TaskItem
@@ -228,21 +194,11 @@ class TaskList extends React.Component {
   }
 
   componentDidMount() {
-    var req = {};
-    req.start_id = this.startId;
-
-    fetch('/daka/api/daily/task/list', {
-      method: 'POST',
-      body: JSON.stringify(req)
-    }).then((response) => {
-      return response.json()
-    }).then((data) => {
+    server.TaskList(this.startId, (data) => {
       this.startId = data.Data[data.Data.length - 1].id
       this.setState({
         dataList: data.Data
       })
-    }).catch(function (error) {
-      console.log(error)
     })
   }
 }
