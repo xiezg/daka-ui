@@ -5,8 +5,11 @@ import server from './server';
 import parse, { domToReact } from 'html-react-parser';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import MermaidRender from "./mermaid";
-import { Normal, Pie, StackedAreaChart } from "./echarts"
+import { BarChart, Normal, Pie, StackedAreaChart } from "./echarts"
 import YAML from 'yaml'
+import { createContext } from "react";
+
+const { Provider, Consumer } = createContext()
 
 const ErrorMsg = 'gantt\ntitle 出错啦!!!❌';
 var hljs = require('react-syntax-highlighter/dist/esm/styles/hljs')
@@ -145,10 +148,14 @@ class NavItem extends React.Component {
         }
 
         return (
-            <div onClick={(e) => { e.stopPropagation(); change_page(post_id) }} className="Nav_item container1" >
-                {edit_mode ? <input onBlur={(event) => { commitMsg(event) }} defaultValue={title}></input> : <div onClick={(e) => { e.stopPropagation(); this.setState({ edit_mode: true }) }} >{title}</div>}
-                <button onClick={(e) => { e.stopPropagation(); delete_post() }} >-</button>
-            </div>
+            <Consumer>{
+                (data)=>
+                <div onClick={(e) => { e.stopPropagation(); change_page(post_id) }} className={ data === post_id ? "Nav_item_active container1" : "Nav_item container1"} >
+                    {edit_mode ? <input onBlur={(event) => { commitMsg(event) }} defaultValue={title}></input> : <div onClick={(e) => { this.setState({ edit_mode: data === post_id }) }} >{title}</div>}
+                    <button onClick={(e) => { e.stopPropagation(); delete_post() }} >-</button>
+                </div>
+            }
+            </Consumer>
         )
     }
 }
@@ -165,6 +172,7 @@ class NavItemGroup extends React.Component {
         }
     }
 
+    //新建POST
     new_post(category, title) {
 
         if (title === "" || category === "") {
@@ -173,6 +181,8 @@ class NavItemGroup extends React.Component {
 
         server.NewKnowledgePost(title, category, (data) => {
             let old_item_array = this.state.item_array
+
+
             old_item_array.push({
                 'post_id': data.Data.post_id,
                 'title': title
@@ -205,15 +215,13 @@ class NavItemGroup extends React.Component {
             return item.post_id !== post_id;
         })
 
-        console.log( { old_item_array, new_item_array } )
+        console.log({ old_item_array, new_item_array })
         this.setState({ item_array: new_item_array })
     }
 
     render() {
         const { title, change_page } = this.props;
         const { item_array } = this.state
-
-        // console.log( "render", item_array )
 
         return (
             <div className="Nav_group">
@@ -255,11 +263,11 @@ class Nav extends React.Component {
                 if (obj === undefined) {
                     obj = []
                 }
-
                 obj.push({
                     'post_id': item.post_id,
                     'title': item.title
                 })
+
                 myMap.set(item.category, obj)
 
                 return true
@@ -270,9 +278,8 @@ class Nav extends React.Component {
     }
 
     render() {
-        const nav_list = this.state.nav_list;
-
         const results = [];
+        const nav_list = this.state.nav_list;
 
         nav_list.forEach((value, key) => {
             results.push(<NavItemGroup change_page={this.props.change_page} item_array={value} title={key} key={key} />)
@@ -292,10 +299,10 @@ class CodeBlack extends React.Component {
 
         const language = this.props.language ? this.props.language : "bash";
 
-        console.log( typeof this.props.children )
+        console.log(typeof this.props.children)
         return (
             <SyntaxHighlighter language={language} style={this.props.style} showLineNumbers={true}>
-                {  typeof this.props.children === "string" ? this.props.children.trim() :"" }
+                {typeof this.props.children === "string" ? this.props.children.trim() : ""}
             </SyntaxHighlighter>
         );
     }
@@ -332,7 +339,7 @@ class PostPage extends React.Component {
                 edit_mode: false,
             })
 
-            if( this.props.post_info.innerHtml !== this.state.innerHtml ){
+            if (this.props.post_info.innerHtml !== this.state.innerHtml) {
                 server.UpdateKnowledgePost(this.props.post_info.post_id, this.state.innerHtml, null)
             }
         }
@@ -348,27 +355,32 @@ class PostPage extends React.Component {
 
                 if (name === "code") {
                     return <CodeBlack style={style} language={attribs.language} children={domToReact(children, options)} />
-                }else if( name === "mermaid" ){
+                } else if (name === "mermaid") {
                     //<mermaid>包含的字符串是 array[0].data
-                    const svg =  MermaidRender( children[0].data, ErrorMsg )
+                    if (children.length === 0) {
+                        return
+                    }
+                    const svg = MermaidRender(children[0].data, ErrorMsg)
                     return (<div dangerouslySetInnerHTML={{ __html: svg }}></div>)
-                }else if( name === "echarts" ){
+                } else if (name === "echarts") {
                     let data = null
 
-                    try{
-                        data = YAML.parse( children[0].data )
-                    }catch(e){
+                    try {
+                        data = YAML.parse(children[0].data)
+                    } catch (e) {
                         console.error(e)
                         return;
                     }
 
-                    switch( attribs.type ){
+                    switch (attribs.type) {
                         case "pie":
-                            return <Pie title={ attribs.title } data={ data } />
+                            return <Pie title={attribs.title} data={data} />
                         case "stacked_area_chart":
-                            return <StackedAreaChart title={ attribs.title }  data={ data } />
+                            return <StackedAreaChart title={attribs.title} data={data} />
+                        case "bar":
+                            return <BarChart title={attribs.title} data={data} />
                         default:
-                            return ;//<Pie title={ attribs.title } data={ YAML.parse( children[0].data ) } />
+                            return;//<Pie title={ attribs.title } data={ YAML.parse( children[0].data ) } />
                     }
                 }
             }
@@ -397,21 +409,23 @@ class Knowledge extends React.Component {
 
     change_page(post_id) {
 
-        server.GetKnowledgePost( post_id, (data)=>{
+        server.GetKnowledgePost(post_id, (data) => {
             this.setState({ post_info: data.Data[0] })
-        } )
+        })
     }
 
     render() {
         const { post_info } = this.state
         return (
-            <div>
-                <button onClick={() => this.props.backup()} >返回首页</button>
-                <div className="container1 knowledge_body" >
-                    <Nav change_page={this.change_page.bind(this)} />
-                    {post_info.post_id > 0 ? <PostPage key={post_info.post_id} post_info={post_info} /> : null}
+            <Provider value={post_info.post_id}>
+                <div>
+                    <button onClick={() => this.props.backup()} >返回首页</button>
+                    <div className="container1 knowledge_body" >
+                        <Nav change_page={this.change_page.bind(this)} />
+                        {post_info.post_id > 0 ? <PostPage key={post_info.post_id} post_info={post_info} /> : null}
+                    </div>
                 </div>
-            </div>
+            </Provider>
         )
     }
 }
