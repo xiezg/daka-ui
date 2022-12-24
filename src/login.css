@@ -75,6 +75,7 @@
 }
 
 .my_input > span{
+    margin-left: 12px;
     margin-top: 12px;
     margin-right: 12px;
     width: 14px;
