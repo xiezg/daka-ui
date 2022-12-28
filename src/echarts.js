@@ -1,6 +1,38 @@
 import React from 'react';
 import ReactECharts from 'echarts-for-react';
 
+function BarChart({ title, data }) {
+
+    let source_array = []
+
+    Object.keys(data.data).map( k=>{
+        // console.log( data.data[k] )
+        const t = data.data[k];
+        source_array.push({ ...t,product: k, })
+    } )
+
+    console.log( source_array )
+
+    return <ReactECharts option={{
+        title: {
+            text: title
+        },
+        legend: {},
+        tooltip: {},
+        dataset: {
+            dimensions: ['product', '2020', '2021', '2022'],
+            source: source_array
+        },
+        xAxis: { type: 'category' },
+        yAxis: {},
+        // Declare several bar series, each will be mapped
+        // to a column of dataset.source by default.
+        series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }]
+    }} style={{ width: "100%", height: "300px" }} ></ReactECharts>
+}
+
+
+//折线堆叠
 function StackedAreaChart({ title, data }) {
     const xAxis_data = Object.keys(data.data)   //x轴 ，为yaml的第一层key
 
@@ -148,6 +180,7 @@ function Pie({ title, data }) {
 
 export {
     Pie,
-    StackedAreaChart
+    StackedAreaChart,
+    BarChart
 };
 

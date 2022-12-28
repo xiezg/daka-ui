@@ -8,6 +8,8 @@ import MermaidRender from "./mermaid";
 import { BarChart, Normal, Pie, StackedAreaChart } from "./echarts"
 import YAML from 'yaml'
 import { createContext } from "react";
+import Countdown from "./countdown";
+import moment from "moment";
 
 const { Provider, Consumer } = createContext()
 
@@ -149,11 +151,13 @@ class NavItem extends React.Component {
 
         return (
             <Consumer>{
-                (data)=>
-                <div onClick={(e) => { e.stopPropagation(); change_page(post_id) }} className={ data === post_id ? "Nav_item_active container1" : "Nav_item container1"} >
-                    {edit_mode ? <input onBlur={(event) => { commitMsg(event) }} defaultValue={title}></input> : <div onClick={(e) => { this.setState({ edit_mode: data === post_id }) }} >{title}</div>}
-                    <button onClick={(e) => { e.stopPropagation(); delete_post() }} >-</button>
-                </div>
+                (data) =>
+                    <div onClick={(e) => { e.stopPropagation(); change_page(post_id) }} className={data === post_id ? "Nav_item_active container1" : "Nav_item container1"} >
+                        {edit_mode ?
+                            <input onBlur={(event) => { commitMsg(event) }} defaultValue={title}></input>
+                            : <div onClick={(e) => { this.setState({ edit_mode: data === post_id }) }} >{title}</div>}
+                        <button onClick={(e) => { e.stopPropagation(); delete_post() }} >-</button>
+                    </div>
             }
             </Consumer>
         )
@@ -382,6 +386,17 @@ class PostPage extends React.Component {
                         default:
                             return;//<Pie title={ attribs.title } data={ YAML.parse( children[0].data ) } />
                     }
+                } else if (name === 'countdown') {
+                    let data = null
+
+                    try {
+                        data = YAML.parse(children[0].data)
+                    } catch (e) {
+                        console.error(e)
+                        return;
+                    }
+
+                    return <Countdown data={data} ></Countdown>
                 }
             }
         };
@@ -389,7 +404,43 @@ class PostPage extends React.Component {
         return (
             <div className="post container2" >
                 {edit_mode ? (<div className="postEditor item" >   <textarea onKeyUp={keyUpWithEditor} onInput={OnInput} value={innerHtml}></textarea> </div>) : null}
-                <div className="item"><div onDoubleClick={() => { this.setState({ edit_mode: true }) }} className="postView" ><div id="content"> {parse(innerHtml ? innerHtml : "", options)} </div></div></div>
+                <div className="item">
+                    <div onDoubleClick={() => { this.setState({ edit_mode: true }) }} >
+                        <PostMetadata post_info={this.props.post_info} ></PostMetadata>
+                        <div id="content"> {parse(innerHtml ? innerHtml : "", options)} </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+}
+
+class PostMetadata extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            tips: false
+        }
+    }
+
+    render() {
+        return (
+            <div className="post_metadata">
+                <div style={{ display: 'inline', position: 'relative' }} onMouseEnter={() => { this.setState({ tips: true }) }} onMouseLeave={() => { this.setState({ tips: false }) }} >
+                    <div className={this.state.tips ? "post_metadata_tips" : "post_metadata_no_tips"} >
+                        <div>发布时间：{moment.unix(this.props.post_info.create_time).format("YYYY-MM-DD HH:mm:ss")}
+                            <br />has gone：{moment().diff(moment.unix(this.props.post_info.create_time), 'days')} 天
+                        </div>
+                        <div>更新时间：{moment.unix(this.props.post_info.last_modify_time).format("YYYY-MM-DD HH:mm:ss")}
+                            <br />has gone：{moment().diff(moment.unix(this.props.post_info.last_modify_time), 'days')} 天
+                        </div>
+                    </div>
+                    <div>发布时间：{moment.unix(this.props.post_info.create_time).format("YYYY-MM-DD")} </div>
+                    <div>更新时间：{moment.unix(this.props.post_info.last_modify_time).format("YYYY-MM-DD")} </div>
+                    <div>累计修改：{this.props.post_info.modify_count} </div>
+                </div>
+
             </div>
         )
     }

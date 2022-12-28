@@ -36,7 +36,7 @@ class MyInput extends React.Component {
         const { type, placeholder, getVal } = this.props;
 
         return (
-            <div className='my_input' >
+            <div className='my_input'>
                 <label style={{ backgroundPosition: this.LabelBackgroundPos() }} ></label>
                 <input onChange={(event) => { getVal(event.target.value) }} type={type} placeholder={placeholder} onBlur={() => { this.setState({ active: false }) }} onFocus={() => { this.setState({ active: true }) }} ></input>
                 <span onClick={() => { this.setState({ value: "" }) }} ></span>
