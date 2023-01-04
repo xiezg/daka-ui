@@ -10,6 +10,7 @@ import YAML from 'yaml'
 import { createContext } from "react";
 import Countdown from "./countdown";
 import moment from "moment";
+import ErrorBoundary from "./ErrorBoundary";
 
 const { Provider, Consumer } = createContext()
 
@@ -303,7 +304,8 @@ class CodeBlack extends React.Component {
 
         const language = this.props.language ? this.props.language : "bash";
 
-        console.log(typeof this.props.children)
+        // console.log(typeof this.props.children)
+
         return (
             <SyntaxHighlighter language={language} style={this.props.style} showLineNumbers={true}>
                 {typeof this.props.children === "string" ? this.props.children.trim() : ""}
@@ -407,11 +409,14 @@ class PostPage extends React.Component {
                 <div className="item">
                     <div onDoubleClick={() => { this.setState({ edit_mode: true }) }} >
                         <PostMetadata post_info={this.props.post_info} ></PostMetadata>
-                        <div id="content"> {parse(innerHtml ? innerHtml : "", options)} </div>
+                        <ErrorBoundary key={moment().unix()} >
+                            <div id="content"> {parse(innerHtml ? innerHtml : "", options)} </div>
+                        </ErrorBoundary>
                     </div>
                 </div>
             </div>
         )
+
     }
 }
 
