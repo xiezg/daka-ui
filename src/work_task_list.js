@@ -177,6 +177,7 @@ class TaskList extends React.Component {
     return (
       <div className='TaskList'>
         <button onClick={() => this.props.backup()} >返回首页</button>
+        <div className='goto'> GoTo TOP </div>
         <React.Fragment>
           {
             this.state.dataList.map(item => <TaskItem

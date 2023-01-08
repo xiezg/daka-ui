@@ -13,6 +13,7 @@ import moment from "moment";
 import ErrorBoundary from "./ErrorBoundary";
 
 const { Provider, Consumer } = createContext()
+const fontSize = "14px";
 
 const ErrorMsg = 'gantt\ntitle 出错啦!!!❌';
 var hljs = require('react-syntax-highlighter/dist/esm/styles/hljs')
@@ -301,13 +302,8 @@ class Nav extends React.Component {
 class CodeBlack extends React.Component {
 
     render() {
-
-        const language = this.props.language ? this.props.language : "bash";
-
-        // console.log(typeof this.props.children)
-
         return (
-            <SyntaxHighlighter language={language} style={this.props.style} showLineNumbers={true}>
+            <SyntaxHighlighter language={this.props.language ? this.props.language : "bash"} style={this.props.style} showLineNumbers={true}>
                 {typeof this.props.children === "string" ? this.props.children.trim() : ""}
             </SyntaxHighlighter>
         );
