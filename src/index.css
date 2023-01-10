@@ -29,6 +29,11 @@ li:nth-child(2n+1){
   background-color: aliceblue;
 }
 
+/* td{
+  text-align:center;
+  vertical-align: middle;
+} */
+
 td:hover {
-  background-color: coral;
+  background-color: rgb(241, 241, 231);
 }
