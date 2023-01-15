@@ -362,7 +362,8 @@ class PostPage extends React.Component {
                     if (children.length === 0) {
                         return
                     }
-                    const svg = MermaidRender(children[0].data, ErrorMsg)
+
+                    const svg = MermaidRender(children[0].data.trim(), ErrorMsg)
                     return (<div dangerouslySetInnerHTML={{ __html: svg }}></div>)
                 } else if (name === "echarts") {
                     let data = null
