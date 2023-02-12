@@ -4,14 +4,20 @@ import ReactECharts from 'echarts-for-react';
 function BarChart({ title, data }) {
 
     let source_array = []
+    let dimensions = ['product']
+    let series = []
 
     Object.keys(data.data).map( k=>{
-        // console.log( data.data[k] )
+        dimensions.push( ... Object.keys(data.data[k]) )
         const t = data.data[k];
         source_array.push({ ...t,product: k, })
+        return true;
     } )
 
-    console.log( source_array )
+    dimensions = [... new Set( dimensions )]
+    for( let i =0;i<dimensions.length-1;i++ ){
+        series.push( { type: 'bar' } )
+    }
 
     return <ReactECharts option={{
         title: {
@@ -20,14 +26,14 @@ function BarChart({ title, data }) {
         legend: {},
         tooltip: {},
         dataset: {
-            dimensions: ['product', '2020', '2021', '2022'],
+            dimensions: dimensions,
             source: source_array
         },
         xAxis: { type: 'category' },
         yAxis: {},
         // Declare several bar series, each will be mapped
         // to a column of dataset.source by default.
-        series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }]
+        series: series
     }} style={{ width: "100%", height: "300px" }} ></ReactECharts>
 }
 
@@ -79,7 +85,7 @@ function StackedAreaChart({ title, data }) {
     merage_array.map(item => {
         lengend_array.push(Object.keys(item)[0])
         series_array.push(item[Object.keys(item)[0]])
-        return;
+        return true;
     })
 
     return <ReactECharts option={{
@@ -131,7 +137,7 @@ function Pie({ title, data }) {
 
     Object.keys(data.item).map(key => {
         array.push({ value: data.item[key], name: key, })
-        return;
+        return true;
     })
 
     return (
