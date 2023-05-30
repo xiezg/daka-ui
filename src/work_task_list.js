@@ -62,65 +62,78 @@ class TaskItem extends React.Component {
     }
   }
 
+  keyUpWithEditor = (event) => {
+
+    if (event.code !== "Escape") {
+      return
+    }
+
+    this.setState({
+      ShowEditor: false,
+    })
+
+    server.TaskSet(this.props.task_id, this.state.svgMsg)
+
+    if (this.task_detail) {
+      server.TaskDetailSet(this.props.task_id, this.task_detail)
+      this.task_detail = null
+    }
+  };
+
+  RightDoubleClick = () => {
+    this.setState({
+      ShowEditor: true,
+    })
+  };
+
+  grant_cb = (svgCode, bindFunctions, taskArray) => {
+
+    try {
+
+      taskArray = taskArray.filter(ele => {
+        return ele.id !== "whole" && ele.id !== "am" && ele.id !== "rest" && ele.id !== "pm"
+      })
+
+      let array = []
+      taskArray.forEach(ele => {
+        array.push({
+          "start_time": moment(ele.startTime).format('HH:mm:ss'),
+          "end_time": moment(ele.endTime).format('HH:mm:ss'),
+          "task": ele.task,
+          "done": ele.done | 0,
+        })
+      })
+      this.task_detail = array;
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  componentDidMount(){
+    MermaidRender( this.state.svgMsg, ErrorMsg, this.grant_cb ).then( (resolve, reject)=>{
+      this.setState( {
+        svg: resolve.svg
+      } )
+    } )
+  }
+  
   edit_oninput(obj) {
 
     this.setState({
       svgMsg: obj.target.value
     })
+
+    MermaidRender( obj.target.value, ErrorMsg, this.grant_cb ).then( (resolve, reject)=>{
+      this.setState( {
+        svg: resolve.svg,
+      } )
+    } )
   }
 
   render() {
-
-    const keyUpWithEditor = (event) => {
-
-      if (event.code !== "Escape") {
-        return
-      }
-
-      this.setState({
-        ShowEditor: false,
-      })
-
-      server.TaskSet(this.props.task_id, this.state.svgMsg)
-
-      if (this.task_detail) {
-        server.TaskDetailSet(this.props.task_id, this.task_detail)
-        this.task_detail = null
-      }
-    };
-
-    const RightDoubleClick = () => {
-      this.setState({
-        ShowEditor: true,
-      })
-    };
-
-    const grant_cb = (svgCode, bindFunctions, taskArray) => {
-
-      try {
-
-        taskArray = taskArray.filter(ele => {
-          return ele.id !== "whole" && ele.id !== "am" && ele.id !== "rest" && ele.id !== "pm"
-        })
-
-        let array = []
-        taskArray.forEach(ele => {
-          array.push({
-            "start_time": moment(ele.startTime).format('HH:mm:ss'),
-            "end_time": moment(ele.endTime).format('HH:mm:ss'),
-            "task": ele.task,
-            "done": ele.done | 0,
-          })
-        })
-        this.task_detail = array;
-      } catch (e) {
-        console.error(e)
-      }
-    }
-
     const { task_date } = this.props;
     var date = new Date(task_date)
-    let svg = MermaidRender( this.state.svgMsg, ErrorMsg, grant_cb )
+    // let svg = MermaidRender( this.state.svgMsg, ErrorMsg, this.grant_cb )
 
     // //render 参数
     // // first: id 随便一个不重复的就一个，svg的 id根据这个ID来设置
@@ -138,12 +151,15 @@ class TaskItem extends React.Component {
     return (
       <div className="gantt_item gannt_container">
         <div className="gannt_edit left" style={{ display: this.state.ShowEditor ? 'inline-block' : 'none' }}>
-          <textarea onKeyUp={keyUpWithEditor} onInput={this.edit_oninput.bind(this)} value={this.state.svgMsg}></textarea>
+          <textarea 
+          onKeyUp={this.keyUpWithEditor} 
+          onInput={this.edit_oninput.bind(this)} 
+          value={this.state.svgMsg}></textarea>
         </div>
-        <div className="right" onDoubleClick={RightDoubleClick}>
+        <div className="right" onDoubleClick={this.RightDoubleClick}>
           <div>{task_date + " " + DateDiffNow(task_date, "2020-11-16") + " w:" + date.getDay()}</div>
           <div className='ip_addr' style={{ float: "right" }} >{this.props.ip_addr}</div>
-          <div dangerouslySetInnerHTML={{ __html: svg }}></div>
+          <div dangerouslySetInnerHTML={{ __html: this.state.svg }}></div>
         </div>
       </div>
     )
