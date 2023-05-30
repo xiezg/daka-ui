@@ -33,11 +33,9 @@ mermaid.initialize({
 export default function MermaidRender(svgMsg, ErrorMsg, grant_cb) {
 
     try {
-        // return mermaid.render("id" + Date.now(), svgMsg, grant_cb, render_container)
         return mermaid.render("id" + Date.now(), svgMsg, render_container)
     }
     catch (e) {
-        // return mermaid.render("id" + Date.now(), ErrorMsg, undefined, render_container)
         return mermaid.render("id" + Date.now(), ErrorMsg, render_container)
     }
 }

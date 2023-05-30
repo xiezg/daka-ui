@@ -11,6 +11,7 @@ import { createContext } from "react";
 import Countdown from "./countdown";
 import moment from "moment";
 import ErrorBoundary from "./ErrorBoundary";
+import { wait } from "@testing-library/user-event/dist/utils";
 
 const { Provider, Consumer } = createContext()
 const fontSize = "14px";
@@ -310,6 +311,29 @@ class CodeBlack extends React.Component {
     }
 }
 
+class MyMermaidDig extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            svg: ""
+        }
+    }
+
+    componentDidMount(){
+        MermaidRender(this.props.txt, ErrorMsg).then( (r,e)=>{
+            this.setState({
+                svg: r.svg
+            })
+        } )
+    }
+
+    render(){
+        return (<div dangerouslySetInnerHTML={{ __html: this.state.svg }}></div>)
+    }
+}
+
 class PostPage extends React.Component {
 
     constructor(props) {
@@ -363,8 +387,11 @@ class PostPage extends React.Component {
                         return
                     }
 
-                    const svg = MermaidRender(children[0].data.trim(), ErrorMsg)
-                    return (<div dangerouslySetInnerHTML={{ __html: svg }}></div>)
+                    return <MyMermaidDig txt={children[0].data.trim()}></MyMermaidDig>
+                    // MermaidRender(children[0].data.trim(), ErrorMsg).then( (r,e)=>{
+                    //     console.log( r.svg )
+                    // } )
+                    // return (<div dangerouslySetInnerHTML={{ __html: "" }}></div>)
                 } else if (name === "echarts") {
                     let data = null
 
