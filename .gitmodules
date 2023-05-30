@@ -1,0 +1,3 @@
+[submodule "lib/mermaid"]
+	path = lib/mermaid
+	url = git@github.com:xiezg/mermaid.git

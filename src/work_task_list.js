@@ -86,7 +86,7 @@ class TaskItem extends React.Component {
     })
   };
 
-  grant_cb = (svgCode, bindFunctions, taskArray) => {
+  grant_cb = (taskArray) => {
 
     try {
 
@@ -103,7 +103,9 @@ class TaskItem extends React.Component {
           "done": ele.done | 0,
         })
       })
+      
       this.task_detail = array;
+
     } catch (e) {
       console.error(e)
     }
@@ -111,6 +113,7 @@ class TaskItem extends React.Component {
 
   componentDidMount(){
     MermaidRender( this.state.svgMsg, ErrorMsg, this.grant_cb ).then( (resolve, reject)=>{
+      this.grant_cb( resolve.taskArray )
       this.setState( {
         svg: resolve.svg
       } )
@@ -124,6 +127,7 @@ class TaskItem extends React.Component {
     })
 
     MermaidRender( obj.target.value, ErrorMsg, this.grant_cb ).then( (resolve, reject)=>{
+      this.grant_cb( resolve.taskArray )
       this.setState( {
         svg: resolve.svg,
       } )
