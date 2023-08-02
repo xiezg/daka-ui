@@ -161,6 +161,13 @@
 	/* background-color: bisque; */
 }
 
-td,th{
-	padding: 3px;
+/* td,th{
+	padding: 12px;
+	border: 1px solid #dee0e3;
 }
+
+table{
+	border-top: 6px solid #dee0e3;
+	border-left: 6px solid #dee0e3;
+	border-collapse: collapse;
+} */

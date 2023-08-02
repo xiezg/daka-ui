@@ -85,6 +85,10 @@ class Server {
     TaskList( start_id,success ) {
         this.post('/daka/api/daily/task/list', { start_id:start_id } ,success )
     }
+
+    TaskStat( start_id,success ) {
+        this.post('/daka/api/daily/task/stat', { start_id:start_id } ,success )
+    }
 }
 
 export default new Server();

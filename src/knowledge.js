@@ -11,6 +11,12 @@ import { createContext } from "react";
 import Countdown from "./countdown";
 import moment from "moment";
 import ErrorBoundary from "./ErrorBoundary";
+
+import Gantt from './components/Gantt';
+import ExampleComponent from './components/Excel'
+import Toolbar from './components/Toolbar';
+import MessageArea from './components/MessageArea';
+
 import { wait } from "@testing-library/user-event/dist/utils";
 
 const { Provider, Consumer } = createContext()
@@ -321,15 +327,15 @@ class MyMermaidDig extends React.Component {
         }
     }
 
-    componentDidMount(){
-        MermaidRender(this.props.txt, ErrorMsg).then( (r,e)=>{
+    componentDidMount() {
+        MermaidRender(this.props.txt, ErrorMsg).then((r, e) => {
             this.setState({
                 svg: r.svg
             })
-        } )
+        })
     }
 
-    render(){
+    render() {
         return (<div dangerouslySetInnerHTML={{ __html: this.state.svg }}></div>)
     }
 }
@@ -342,11 +348,42 @@ class PostPage extends React.Component {
         this.state = {
             edit_mode: props.post_info.innerHtml === null || props.post_info.innerHtml === "",
             innerHtml: props.post_info.innerHtml,
+            currentZoom: 'Days',
+            messages: [],
         }
     }
 
     componentDidUpdate(prevProps, prevState) {
         // console.log("componentDidUpdate")
+    }
+
+    addMessage(message) {
+        const maxLogLength = 5;
+        const newMessage = { message };
+        const messages = [
+          newMessage,
+          ...this.state.messages
+        ];
+    
+        if (messages.length > maxLogLength) {
+          messages.length = maxLogLength;
+        }
+        this.setState({ messages });
+    }
+
+    handleZoomChange = (zoom) => {
+        this.setState({
+            currentZoom: zoom
+        });
+    }
+
+    logDataUpdate = (type, action, item, id) => {
+        let text = item && item.text ? ` (${item.text})` : '';
+        let message = `${type} ${action}: ${id} ${text}`;
+        if (type === 'link' && action !== 'delete') {
+          message += ` ( source: ${item.source}, target: ${item.target} )`;
+        }
+        this.addMessage(message);
     }
 
     render() {
@@ -423,6 +460,47 @@ class PostPage extends React.Component {
                     }
 
                     return <Countdown data={data} ></Countdown>
+                } else if (name === 'gantt') {
+                    const { currentZoom, messages } = this.state;
+
+                    const data = {
+                        data: [
+                            { id: 1, text: 'Task #1', start_date: '2019-04-15', duration: 3, progress: 0.6 },
+                            { id: 2, text: 'Task #2', start_date: '2019-04-18', duration: 3, progress: 0.4 }
+                        ],
+                        links: [
+                            { id: 1, source: 1, target: 2, type: '0' }
+                        ]
+                    };
+
+                    return (
+                        <div style={{ "height": "300px" }} >
+                            <div className="zoom-bar">
+                                <Toolbar
+                                    zoom={currentZoom}
+                                    onZoomChange={this.handleZoomChange}
+                                />
+                            </div>
+                            <div className="gantt-container">
+                                <Gantt
+                                    tasks={data}
+                                    zoom={currentZoom}
+                                    onDataUpdated={this.logDataUpdate}
+                                />
+                            </div>
+                            <MessageArea
+                                messages={messages}
+                            />
+                        </div>
+
+                        //     <div className="gantt-container" onDoubleClick={(event) => { event.stopPropagation(); }}  >
+                        //         <Gantt tasks={data}/>
+                        //     </div>
+                    );
+                } else if (name === 'excel') {
+                    return (
+                        <ExampleComponent></ExampleComponent>
+                    )
                 }
             }
         };

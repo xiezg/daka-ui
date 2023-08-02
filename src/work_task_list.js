@@ -103,7 +103,7 @@ class TaskItem extends React.Component {
           "done": ele.done | 0,
         })
       })
-      
+
       this.task_detail = array;
 
     } catch (e) {
@@ -111,27 +111,33 @@ class TaskItem extends React.Component {
     }
   }
 
-  componentDidMount(){
-    MermaidRender( this.state.svgMsg, ErrorMsg, this.grant_cb ).then( (resolve, reject)=>{
-      this.grant_cb( resolve.taskArray )
-      this.setState( {
-        svg: resolve.svg
-      } )
-    } )
+  componentDidMount() {
+
+    MermaidRender(this.state.svgMsg, ErrorMsg).then(val => {
+      this.grant_cb(val.taskArray)
+      this.setState({
+        svg: val.svg
+      })
+    }).catch(e => {
+      //noting
+    })
   }
-  
+
   edit_oninput(obj) {
 
     this.setState({
       svgMsg: obj.target.value
     })
 
-    MermaidRender( obj.target.value, ErrorMsg, this.grant_cb ).then( (resolve, reject)=>{
-      this.grant_cb( resolve.taskArray )
-      this.setState( {
-        svg: resolve.svg,
-      } )
-    } )
+    MermaidRender(obj.target.value, ErrorMsg).then(val => {
+      this.grant_cb(val.taskArray)
+      this.setState({
+        svg: val.svg,
+      })
+    }).catch(e => {
+      //nothing 
+    })
+
   }
 
   render() {
@@ -155,10 +161,10 @@ class TaskItem extends React.Component {
     return (
       <div className="gantt_item gannt_container">
         <div className="gannt_edit left" style={{ display: this.state.ShowEditor ? 'inline-block' : 'none' }}>
-          <textarea 
-          onKeyUp={this.keyUpWithEditor} 
-          onInput={this.edit_oninput.bind(this)} 
-          value={this.state.svgMsg}></textarea>
+          <textarea
+            onKeyUp={this.keyUpWithEditor}
+            onInput={this.edit_oninput.bind(this)}
+            value={this.state.svgMsg}></textarea>
         </div>
         <div className="right" onDoubleClick={this.RightDoubleClick}>
           <div>{task_date + " " + DateDiffNow(task_date, "2020-11-16") + " w:" + date.getDay()}</div>
@@ -174,11 +180,29 @@ class TaskList extends React.Component {
 
   constructor(props) {
     super(props);
-    
+
     this.startId = -1;
     this.state = {
-      dataList: []
+      dataList: [],
+      showStat: true,
+      stat: null
     }
+  }
+
+  componentDidMount() {
+
+    server.TaskList(this.startId, (data) => {
+      this.startId = data.Data[data.Data.length - 1].id
+      this.setState({
+        dataList: data.Data
+      })
+    })
+
+    server.TaskStat(-1, (data) => {
+      this.setState({
+        stat: data.Data,
+      })
+    })
   }
 
   handleOnDocumentBottom = () => {
@@ -190,14 +214,68 @@ class TaskList extends React.Component {
       })
     })
 
-    console.log('I am at bottom! ', this.startId);
+    // console.log('I am at bottom! ', this.startId);
   };
 
+  popTaskStat = () => {
+    server.TaskStat(1, (data) => {
+      console.log(data)
+    })
+  }
+
+  enableStat = () => {
+
+    server.TaskStat(-1, (data) => {
+      this.setState({
+        stat: data.Data,
+      })
+    })
+
+    this.setState({ showStat: !this.state.showStat })
+  }
+
   render() {
+
+    const { showStat, stat } = this.state
+
     return (
       <div className='TaskList'>
-        <button onClick={() => this.props.backup()} >返回首页</button>
-        <div className='goto'> GoTo TOP </div>
+        <div className='menu'>
+          <button onClick={() => this.props.backup()} >返回首页</button>
+          <button onClick={() => { this.enableStat() }} > 统计</button>
+        </div>
+
+        {showStat && stat ?
+          (<div className='pop_win'>
+            <div>
+              <div className='statHead'>
+                <span>Top: </span>
+                <select style={{width: "50px" }}>
+                  <option value="wewewe">10</option>
+                  <option value="wewewe">20</option>
+                  <option value="wewewe">30</option>
+                  <option value="wewewe">50</option>
+                </select>
+              </div>
+              <div className='statBody'>
+                <span>总任务：{stat.taskUniqNum}</span>
+                <React.Fragment>
+                  {
+                    <ul>
+                      {stat.taskTop.slice(0, 100).map(item => <li>{item.n} {item.task_prefix} </li>)}
+                    </ul>
+                  }
+                </React.Fragment>
+              </div>
+
+              <div className='statFoot'>
+              </div>
+            </div>
+
+          </div>) : (<></>)
+        }
+
+        {/* <div className='goto'> GoTo TOP </div> */}
         <React.Fragment>
           {
             this.state.dataList.map(item => <TaskItem
@@ -212,15 +290,6 @@ class TaskList extends React.Component {
         <BottomScrollListener onBottom={this.handleOnDocumentBottom} />
       </div>
     )
-  }
-
-  componentDidMount() {
-    server.TaskList(this.startId, (data) => {
-      this.startId = data.Data[data.Data.length - 1].id
-      this.setState({
-        dataList: data.Data
-      })
-    })
   }
 }
 

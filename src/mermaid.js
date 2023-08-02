@@ -30,7 +30,7 @@ mermaid.initialize({
 // third: cb 结果回调函数，可以不写
 // forth： render的临时中间div，可以不写，但是容易出错，最好写一个
 
-export default function MermaidRender(svgMsg, ErrorMsg, grant_cb) {
+export default function MermaidRender(svgMsg, ErrorMsg) {
 
     try {
         return mermaid.render("id" + Date.now(), svgMsg, render_container)

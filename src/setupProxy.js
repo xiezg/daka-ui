@@ -7,9 +7,8 @@ module.exports = function (app) {
     app.use(
         '/daka',
         createProxyMiddleware({
-            // target: 'http://localhost:8081',
-            // target: 'https://123.57.91.195',
-            target: "https://36.133.243.213:8888",
+            // target: 'http://host.docker.internal:8081',     //Mac 环境下，在docker内访问宿主机
+            target: "https://36.138.164.17:8888",
             changeOrigin: true,
             secure: false,
         })

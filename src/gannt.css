@@ -40,7 +40,8 @@
     border-radius: 5px;
 }
 
-.gantt_item:nth-of-type(1) {
+/* .gantt_item:nth-of-type(2) { */
+.gantt_item:nth-child(3) {
     /* box-shadow: 0px 0px 40px darkred; */
     animation: huxi 800ms linear infinite alternate;
 }
@@ -78,6 +79,18 @@
 .TaskList{
     margin-left: 10px;
     margin-right: 10px;
+}
+
+.TaskList > .menu{
+    margin: 10px;
+    display: flex;
+    justify-content: space-between;
+    /* background-color: rgb(212, 227, 212); */
+}
+
+.TaskList > .POP{
+    border: 1px solid;
+    height: 200px;
 }
 
 .goto{
