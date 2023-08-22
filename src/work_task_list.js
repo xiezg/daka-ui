@@ -181,6 +181,10 @@ class TaskList extends React.Component {
   constructor(props) {
     super(props);
 
+    this.task_stat = {
+      perfix_len: 16,
+      top_num: 15
+    }
     this.startId = -1;
     this.state = {
       dataList: [],
@@ -198,7 +202,7 @@ class TaskList extends React.Component {
       })
     })
 
-    server.TaskStat(-1, (data) => {
+    server.TaskStat(this.task_stat.perfix_len, this.task_stat.top_num, (data) => {
       this.setState({
         stat: data.Data,
       })
@@ -217,15 +221,9 @@ class TaskList extends React.Component {
     // console.log('I am at bottom! ', this.startId);
   };
 
-  popTaskStat = () => {
-    server.TaskStat(1, (data) => {
-      console.log(data)
-    })
-  }
-
   enableStat = () => {
 
-    server.TaskStat(-1, (data) => {
+    server.TaskStat(this.task_stat.perfix_len, this.task_stat.top_num, (data) => {
       this.setState({
         stat: data.Data,
       })
@@ -249,13 +247,14 @@ class TaskList extends React.Component {
           (<div className='pop_win'>
             <div>
               <div className='statHead'>
-                <span>Top: </span>
-                <select style={{width: "50px" }}>
-                  <option value="wewewe">10</option>
-                  <option value="wewewe">20</option>
-                  <option value="wewewe">30</option>
-                  <option value="wewewe">50</option>
-                </select>
+                <label>
+                  TOP:
+                  <select name="selectedFruit">
+                    <option value="apple">Apple</option>
+                    <option value="banana">Banana</option>
+                    <option value="orange">Orange</option>
+                  </select>
+                </label>
               </div>
               <div className='statBody'>
                 <span>总任务：{stat.taskUniqNum}</span>

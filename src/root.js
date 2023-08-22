@@ -38,7 +38,7 @@ class DailyTaskStat extends React.Component {
     }
 
     componentDidMount() {
-        server.TaskStat(-1, (data) => {
+        server.TaskStat( 10, 10, (data) => {
             this.setState({
                 stat: data.Data,
             })

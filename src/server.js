@@ -86,8 +86,8 @@ class Server {
         this.post('/daka/api/daily/task/list', { start_id:start_id } ,success )
     }
 
-    TaskStat( start_id,success ) {
-        this.post('/daka/api/daily/task/stat', { start_id:start_id } ,success )
+    TaskStat( perfix_len, top_num, success ) {
+        this.post('/daka/api/daily/task/stat', { perfix_len:perfix_len,top_num:top_num  } ,success )
     }
 }
 
