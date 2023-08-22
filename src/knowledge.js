@@ -5,7 +5,7 @@ import server from './server';
 import parse, { domToReact } from 'html-react-parser';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import MermaidRender from "./mermaid";
-import { BarChart, Normal, Pie, StackedAreaChart } from "./echarts"
+import { BarChart, Pie, StackedAreaChart } from "./echarts"
 import YAML from 'yaml'
 import { createContext } from "react";
 import Countdown from "./countdown";
@@ -361,12 +361,12 @@ class PostPage extends React.Component {
         const maxLogLength = 5;
         const newMessage = { message };
         const messages = [
-          newMessage,
-          ...this.state.messages
+            newMessage,
+            ...this.state.messages
         ];
-    
+
         if (messages.length > maxLogLength) {
-          messages.length = maxLogLength;
+            messages.length = maxLogLength;
         }
         this.setState({ messages });
     }
@@ -381,7 +381,7 @@ class PostPage extends React.Component {
         let text = item && item.text ? ` (${item.text})` : '';
         let message = `${type} ${action}: ${id} ${text}`;
         if (type === 'link' && action !== 'delete') {
-          message += ` ( source: ${item.source}, target: ${item.target} )`;
+            message += ` ( source: ${item.source}, target: ${item.target} )`;
         }
         this.addMessage(message);
     }
@@ -578,6 +578,7 @@ class Knowledge extends React.Component {
             <Provider value={post_info.post_id}>
                 <div>
                     <button onClick={() => this.props.backup()} >返回首页</button>
+
                     <div className="container1 knowledge_body" >
                         <Nav change_page={this.change_page.bind(this)} />
                         {post_info.post_id > 0 ? <PostPage key={post_info.post_id} post_info={post_info} /> : null}
