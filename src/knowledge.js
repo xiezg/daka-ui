@@ -5,7 +5,7 @@ import server from './server';
 import parse, { domToReact } from 'html-react-parser';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import MermaidRender from "./mermaid";
-import { BarChart, Pie, StackedAreaChart } from "./echarts"
+import { BarChart, Pie, StackedAreaChart } from "./components/Echarts"
 import YAML from 'yaml'
 import { createContext } from "react";
 import Countdown from "./countdown";
@@ -350,6 +350,7 @@ class PostPage extends React.Component {
             innerHtml: props.post_info.innerHtml,
             currentZoom: 'Days',
             messages: [],
+            style: styleArray[Math.floor((Math.random() * styleArray.length))],
         }
     }
 
@@ -388,7 +389,7 @@ class PostPage extends React.Component {
 
     render() {
 
-        const style = styleArray[Math.floor((Math.random() * styleArray.length))];
+        // const style = styleArray[Math.floor((Math.random() * styleArray.length))];
 
         const { edit_mode, innerHtml } = this.state;
 
@@ -413,11 +414,39 @@ class PostPage extends React.Component {
             })
         }
 
+        function parseCSSString(cssString) {
+            var styles = {};
+
+            // 使用正则表达式匹配样式属性和值
+            var regex = /([\w-]+)\s*:\s*([^;]+)/g;
+            var match;
+
+            while ((match = regex.exec(cssString)) !== null) {
+                var property = match[1].trim();
+                var value = match[2].trim();
+
+                // 将属性和值添加到样式对象中
+                styles[property] = value;
+            }
+
+            return styles;
+        }
+
         const options = {
             replace: ({ name, attribs, children }) => {
 
                 if (name === "code") {
-                    return <CodeBlack style={style} language={attribs.language} children={domToReact(children, options)} />
+                    let MyStyle = {}
+                    if (attribs.style) {
+                        MyStyle = parseCSSString(attribs.style)
+                    }
+
+                    console.log(MyStyle)
+                    return (
+                        <div style={MyStyle} >
+                            <CodeBlack style={this.state.style} language={attribs.language} children={domToReact(children, options)} />
+                        </div>
+                    )
                 } else if (name === "mermaid") {
                     //<mermaid>包含的字符串是 array[0].data
                     if (children.length === 0) {
@@ -505,6 +534,12 @@ class PostPage extends React.Component {
             }
         };
 
+        const parse_2 = () => {
+            var rst = parse(innerHtml ? innerHtml : "", options)
+            // console.log(rst)
+            return rst
+        }
+
         return (
             <div className="post container2" >
                 {edit_mode ? (<div className="postEditor item" >   <textarea onKeyUp={keyUpWithEditor} onInput={OnInput} value={innerHtml}></textarea> </div>) : null}
@@ -512,7 +547,8 @@ class PostPage extends React.Component {
                     <div onDoubleClick={() => { this.setState({ edit_mode: true }) }} >
                         <PostMetadata post_info={this.props.post_info} ></PostMetadata>
                         <ErrorBoundary key={moment().unix()} >
-                            <div id="content"> {parse(innerHtml ? innerHtml : "", options)} </div>
+                            {/* <div id="content"> {parse(innerHtml ? innerHtml : "", options)} </div> */}
+                            <div id="content"> {parse_2()} </div>
                         </ErrorBoundary>
                     </div>
                 </div>
