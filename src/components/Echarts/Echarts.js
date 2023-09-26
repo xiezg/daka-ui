@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactECharts from 'echarts-for-react';
 
-function BarChart({ title, data }) {
+export function BarChart({ title, data }) {
 
     let source_array = []
     let dimensions = ['product']
@@ -39,7 +39,7 @@ function BarChart({ title, data }) {
 
 
 //折线堆叠
-function StackedAreaChart({ title, data }) {
+export function StackedAreaChart({ title, data }) {
     const xAxis_data = Object.keys(data.data)   //x轴 ，为yaml的第一层key
 
     let merage_array = [];
@@ -131,7 +131,7 @@ function StackedAreaChart({ title, data }) {
     }} style={{ width: "100%", height: "300px" }} ></ReactECharts>
 }
 
-function Pie({ title, data }) {
+export function Pie({ title, data }) {
 
     let array = []
 
@@ -184,9 +184,4 @@ function Pie({ title, data }) {
     )
 }
 
-export {
-    Pie,
-    StackedAreaChart,
-    BarChart
-};
 

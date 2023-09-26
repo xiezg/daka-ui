@@ -17,13 +17,54 @@ class Module extends React.Component {
 
     render() {
         const { open_page, title, subMod } = this.props;
-        console.log({ subMod })
         return (
             <div className='module' onClick={() => open_page()} >
                 {title}
                 {subMod}
             </div>
         )
+    }
+}
+
+class NoteTaskStat extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            stat: null
+        }
+    }
+
+    componentDidMount() {
+        server.StatKnowledgePost( data => {
+            console.log( data.Data )
+            this.setState({
+                taskUniqNum: data.Data.length,
+                stat: data.Data,
+            })
+        })
+    }
+
+    render(){
+        const { stat, taskUniqNum } = this.state
+
+        if (stat === null) {
+            return <div></div>
+        }
+
+        return <div className='subMod'>
+            <span>任务总数：{taskUniqNum}</span>
+
+            <React.Fragment>
+                {
+                    <ul>
+                        {stat.slice(0,5).map(item => <li>{item.category} / {item.title} </li>)}
+                    </ul>
+                }
+            </React.Fragment>
+
+        </div>
     }
 }
 
@@ -100,8 +141,8 @@ class ModuleList extends React.Component {
                     <input type="text" />
                 </div>
                 <div className='moduleList'>
-                    <Module subMod={<DailyTaskStat />} title='每日任务' open_page={this.set_work_list.bind(this)} />
-                    <Module title='Note' open_page={this.set_knowledge.bind(this)} />
+                    <Module subMod={<DailyTaskStat/>} title='每日任务' open_page={this.set_work_list.bind(this)} />
+                    <Module subMod={<NoteTaskStat/>} title='Note' open_page={this.set_knowledge.bind(this)} />
                     <Module title='online_tools' open_page={this.set_online_tools.bind(this)} />
                     {/* <Module title='WorkList2' open_page={ this.set_work_list2.bind(this) } /> */}
                 </div>

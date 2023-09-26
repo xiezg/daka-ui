@@ -188,7 +188,7 @@ class TaskList extends React.Component {
     this.startId = -1;
     this.state = {
       dataList: [],
-      showStat: true,
+      showStat: false,
       stat: null
     }
   }

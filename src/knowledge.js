@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import "./layout.css"
 import "./knowledge.css"
 import server from './server';
@@ -18,9 +18,9 @@ import Toolbar from './components/Toolbar';
 import MessageArea from './components/MessageArea';
 
 import { wait } from "@testing-library/user-event/dist/utils";
+import light from "react-syntax-highlighter/dist/cjs/light";
 
 const { Provider, Consumer } = createContext()
-const fontSize = "14px";
 
 const ErrorMsg = 'gantt\ntitle 出错啦!!!❌';
 var hljs = require('react-syntax-highlighter/dist/esm/styles/hljs')
@@ -228,7 +228,7 @@ class NavItemGroup extends React.Component {
             return item.post_id !== post_id;
         })
 
-        console.log({ old_item_array, new_item_array })
+        // console.log({ old_item_array, new_item_array })
         this.setState({ item_array: new_item_array })
     }
 
@@ -340,6 +340,31 @@ class MyMermaidDig extends React.Component {
     }
 }
 
+class QAItem extends React.Component {
+
+    render() {
+        const results = [];
+
+        const keys = Object.keys(this.props.msg);
+        keys.forEach(key => {
+            const value = this.props.msg[key];
+
+            if (key === "title") {
+                results.push(<h3>{value}</h3>)
+            } else {
+                results.push(<div> {key}:<br /><p>{value}</p></div>)
+            }
+
+        });
+
+        return (
+            <>
+                {results}
+            </>
+        )
+    }
+}
+
 class PostPage extends React.Component {
 
     constructor(props) {
@@ -388,13 +413,9 @@ class PostPage extends React.Component {
     }
 
     render() {
-
         // const style = styleArray[Math.floor((Math.random() * styleArray.length))];
-
         const { edit_mode, innerHtml } = this.state;
-
         const keyUpWithEditor = (event) => {
-
             if (event.code !== "Escape") {
                 return
             }
@@ -432,6 +453,8 @@ class PostPage extends React.Component {
             return styles;
         }
 
+        // {domToReact(children, options)} 获取的children对象是js原生对象
+
         const options = {
             replace: ({ name, attribs, children }) => {
 
@@ -441,13 +464,57 @@ class PostPage extends React.Component {
                         MyStyle = parseCSSString(attribs.style)
                     }
 
-                    console.log(MyStyle)
                     return (
                         <div style={MyStyle} >
                             <CodeBlack style={this.state.style} language={attribs.language} children={domToReact(children, options)} />
                         </div>
                     )
-                } else if (name === "mermaid") {
+                } else if (name === "overview") {
+                    console.log("overview", children[0].data)
+                    return (
+                        <div className="overview">
+                            {domToReact(children, options)}
+                        </div>
+                    )
+                } else if (name === 'card') {
+                    console.log("card", children)
+                    return (
+                        <div className="card" >
+                            {domToReact(children, options)}
+                        </div>
+                    )
+                }
+                else if (name === "qa") {
+                    if (!children[0]) {
+                        return
+                    }
+
+                    try {
+                        let data = YAML.parse(children[0].data)
+                        if (data && data.length > 0) {
+                            // console.log( "qa", data)
+                            return (
+                                <>
+                                    <h2>Q&A</h2>
+                                    <ol>
+                                        <React.Fragment> {
+                                            data.map(item => {
+                                                if (item) {
+                                                    return <li> <QAItem msg={item} /> </li>
+                                                }
+                                            })
+                                        }
+                                        </React.Fragment>
+                                    </ol>
+                                </>
+                            )
+                        }
+                    } catch (e) {
+                        console.error(e)
+                        return;
+                    }
+                }
+                else if (name === "mermaid") {
                     //<mermaid>包含的字符串是 array[0].data
                     if (children.length === 0) {
                         return
@@ -569,22 +636,25 @@ class PostMetadata extends React.Component {
 
     render() {
         return (
-            <div className="post_metadata">
-                <div style={{ display: 'inline', position: 'relative' }} onMouseEnter={() => { this.setState({ tips: true }) }} onMouseLeave={() => { this.setState({ tips: false }) }} >
-                    <div className={this.state.tips ? "post_metadata_tips" : "post_metadata_no_tips"} >
-                        <div>发布时间：{moment.unix(this.props.post_info.create_time).format("YYYY-MM-DD HH:mm:ss")}
-                            <br />has gone：{moment().diff(moment.unix(this.props.post_info.create_time), 'days')} 天
-                        </div>
-                        <div>更新时间：{moment.unix(this.props.post_info.last_modify_time).format("YYYY-MM-DD HH:mm:ss")}
-                            <br />has gone：{moment().diff(moment.unix(this.props.post_info.last_modify_time), 'days')} 天
-                        </div>
-                    </div>
-                    <div>发布时间：{moment.unix(this.props.post_info.create_time).format("YYYY-MM-DD")} </div>
-                    <div>更新时间：{moment.unix(this.props.post_info.last_modify_time).format("YYYY-MM-DD")} </div>
-                    <div>累计修改：{this.props.post_info.modify_count} </div>
-                </div>
+            <>
+                <div className="post_title" > {this.props.post_info.title}</div>
 
-            </div>
+                <div className="post_metadata">
+                    <div style={{ display: 'inline', position: 'relative' }} onMouseEnter={() => { this.setState({ tips: true }) }} onMouseLeave={() => { this.setState({ tips: false }) }} >
+                        <div className={this.state.tips ? "post_metadata_tips" : "post_metadata_no_tips"} >
+                            <div>发布时间：{moment.unix(this.props.post_info.create_time).format("YYYY-MM-DD HH:mm:ss")}
+                                <br />has gone：{moment().diff(moment.unix(this.props.post_info.create_time), 'days')} 天
+                            </div>
+                            <div>更新时间：{moment.unix(this.props.post_info.last_modify_time).format("YYYY-MM-DD HH:mm:ss")}
+                                <br />has gone：{moment().diff(moment.unix(this.props.post_info.last_modify_time), 'days')} 天
+                            </div>
+                        </div>
+                        <div>发布时间：{moment.unix(this.props.post_info.create_time).format("YYYY-MM-DD")} </div>
+                        <div>更新时间：{moment.unix(this.props.post_info.last_modify_time).format("YYYY-MM-DD")} </div>
+                        <div>累计修改：{this.props.post_info.modify_count} </div>
+                    </div>
+                </div>
+            </>
         )
     }
 }
@@ -613,12 +683,14 @@ class Knowledge extends React.Component {
         return (
             <Provider value={post_info.post_id}>
                 <div>
+                    <header></header>
                     <button onClick={() => this.props.backup()} >返回首页</button>
 
                     <div className="container1 knowledge_body" >
                         <Nav change_page={this.change_page.bind(this)} />
                         {post_info.post_id > 0 ? <PostPage key={post_info.post_id} post_info={post_info} /> : null}
                     </div>
+                    <header></header>
                 </div>
             </Provider>
         )
