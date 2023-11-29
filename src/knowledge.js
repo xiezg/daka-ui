@@ -328,11 +328,15 @@ class MyMermaidDig extends React.Component {
     }
 
     componentDidMount() {
-        MermaidRender(this.props.txt, ErrorMsg).then((r, e) => {
-            this.setState({
-                svg: r.svg
+        MermaidRender(this.props.txt, ErrorMsg)
+            .then((r, e) => {
+                this.setState({
+                    svg: r.svg
+                })
             })
-        })
+            .catch( err=>{
+                console.error( err )
+            } )
     }
 
     render() {
@@ -362,6 +366,16 @@ class QAItem extends React.Component {
                 {results}
             </>
         )
+    }
+}
+
+class PartLayout extends React.Component {
+
+    render() {
+        return (<div className="partLayout" >
+            <span>{this.props.index}</span>
+            {this.props.children}
+        </div>)
     }
 }
 
@@ -455,6 +469,8 @@ class PostPage extends React.Component {
 
         // {domToReact(children, options)} 获取的children对象是js原生对象
 
+        let part_num = 0;
+
         const options = {
             replace: ({ name, attribs, children }) => {
 
@@ -476,7 +492,12 @@ class PostPage extends React.Component {
                             {domToReact(children, options)}
                         </div>
                     )
-                } else if (name === 'card') {
+                } else if (name === 'part') {
+                    part_num = part_num + 1
+                    console.log("part_num:", part_num)
+                    return <PartLayout index={part_num} children={domToReact(children, options)} />
+                }
+                else if (name === 'card') {
                     console.log("card", children)
                     return (
                         <div className="card" >
@@ -601,27 +622,50 @@ class PostPage extends React.Component {
             }
         };
 
-        const parse_2 = () => {
-            var rst = parse(innerHtml ? innerHtml : "", options)
-            // console.log(rst)
-            return rst
+        const handlePaste = (event) => {
+            const clipboardData = event.clipboardData || window.clipboardData;
+            const items = clipboardData.items;
+
+            // 遍历黏贴数据中的所有项目
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+
+                // 如果是文件类型并且是图片
+                if (item.kind === 'file' && item.type.includes('image')) {
+                    const file = item.getAsFile();
+                    const formData = new FormData();
+                    formData.append('image', file, file.name);
+
+                    // 使用 fetch 方法发送 FormData 到服务端进行上传
+                    fetch('/daka/api/fs/add', {
+                        method: 'POST',
+                        body: formData
+                    }).then(res => {
+                        console.log('Uploaded successfully:', res);
+                    }).catch(error => {
+                        console.error('Upload failed:', error);
+                    });
+
+                    // 中止事件以避免浏览器默认行为
+                    event.preventDefault();
+                    break;
+                }
+            }
         }
 
         return (
             <div className="post container2" >
-                {edit_mode ? (<div className="postEditor item" >   <textarea onKeyUp={keyUpWithEditor} onInput={OnInput} value={innerHtml}></textarea> </div>) : null}
+                {edit_mode ? (<div className="postEditor item" >   <textarea onPaste={handlePaste} onKeyUp={keyUpWithEditor} onInput={OnInput} value={innerHtml}></textarea> </div>) : null}
                 <div className="item">
                     <div onDoubleClick={() => { this.setState({ edit_mode: true }) }} >
                         <PostMetadata post_info={this.props.post_info} ></PostMetadata>
                         <ErrorBoundary key={moment().unix()} >
-                            {/* <div id="content"> {parse(innerHtml ? innerHtml : "", options)} </div> */}
-                            <div id="content"> {parse_2()} </div>
+                            <div id="content"> {parse(innerHtml ? innerHtml : "", options)} </div>
                         </ErrorBoundary>
                     </div>
                 </div>
             </div>
         )
-
     }
 }
 

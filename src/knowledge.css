@@ -260,3 +260,12 @@ header {
 	visibility: visible;
 	margin: 15px 0px;
 }
+
+.card li {
+	margin: 6px;
+}
+
+.partLayout{
+	border: 1px solid gray;
+	margin: 10px;
+}

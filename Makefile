@@ -1,3 +1,4 @@
 .PHONY : build 
 build:
-	docker build  -t daka-ui:v1.0 .
+	docker build  -t daka-ui:v1.0-beta.1 .
+
