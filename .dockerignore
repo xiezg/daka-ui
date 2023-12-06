@@ -1,2 +1,5 @@
 .git
 build/
+./node_modules
+./lib/mermaid/node_modules
+
