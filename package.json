@@ -48,6 +48,8 @@
     ]
   },
   "devDependencies": {
+    "browserslist": "^4.22.2",
+    "caniuse-lite": "^1.0.30001566",
     "http-proxy-middleware": "^2.0.6"
   }
 }
