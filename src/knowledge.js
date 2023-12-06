@@ -4,7 +4,7 @@ import "./knowledge.css"
 import server from './server';
 import parse, { domToReact } from 'html-react-parser';
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import MermaidRender from "./mermaid";
+import MermaidRender from "./my_mermaid";
 import { BarChart, Pie, StackedAreaChart } from "./components/Echarts"
 import YAML from 'yaml'
 import { createContext } from "react";

@@ -2,7 +2,7 @@ import './gannt.css';
 import React from 'react';
 import { BottomScrollListener } from 'react-bottom-scroll-listener';
 import server from './server';
-import MermaidRender from './mermaid';
+import MermaidRender from './my_mermaid';
 
 var moment = require('moment')
 
